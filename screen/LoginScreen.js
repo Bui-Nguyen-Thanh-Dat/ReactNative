@@ -21,7 +21,7 @@ const LoginScreen = (props) => {
             return data;
         } catch (error) {
             log.error('Fetch data failed ' + error);
-            return 1;
+            return null;
         }
     }
 
@@ -55,7 +55,7 @@ const LoginScreen = (props) => {
                 if (!(authInfo.password === request.password)) {
                     Alert.alert('Notification', 'Mat khau sai', [{ text: 'Cancel', onPress: () => console.log('Password khong dung cho ' + request.username) }]);
                 } else {
-                    Alert.alert('Notification', 'Dang nhap thanh cong' + request.username, [
+                    Alert.alert('Notification', 'Dang nhap thanh cong ' + request.username, [
                         { text: 'OK', onPress: () => navigateToHome() },
                         { text: 'Cancel', onPress: () => console.log('Press Cancel') }
                     ]);
