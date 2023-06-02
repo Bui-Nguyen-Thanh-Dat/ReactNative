@@ -8,6 +8,19 @@
             "lastName": "Bui",
             "email": "datbntph19949@fpt.edu.vn",
             "gender": "Male",
+            "role": "ADMIN",
+            "createDate": "25/05/2023",
+            "updateDate": "25/05/2023"
+        },
+        {
+            "id": 2,
+            "userName": "datbnt19949",
+            "password": "12345",
+            "firtName": "Dat",
+            "lastName": "Bui",
+            "email": "datbntph19949@fpt.edu.vn",
+            "gender": "Male",
+            "role": "STAFF",
             "createDate": "25/05/2023",
             "updateDate": "25/05/2023"
         }

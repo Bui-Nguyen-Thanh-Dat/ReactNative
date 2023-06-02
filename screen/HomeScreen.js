@@ -1,3 +1,8 @@
+
+import { useNavigation } from '@react-navigation/native';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { Button ,StyleSheet, View,Text,Image, ScrollView} from 'react-native';
 
 import React, { useEffect, useState } from 'react';
@@ -5,19 +10,38 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Student from '../component/Student';
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
+    const navigation=useNavigation();
+
     const[students, setStudents]= useState([]);
-    useEffect(()=>{
-        getListStudent();
-    },[]);
-      
+    const[authInfo, setAuthInfo]= useState();
+   
+
     // Hàm điều hướng
     const navigateToLogin = () => {
         navigation.navigate('Login');
     };
+
+
+    const retrieveData =async()=>{
+        const authInfo = await AsyncStorage.getItem('authInfo', authInfo);
+            if (authInfo !== null) {
+                console.log('====> authInfo from AsyncStorage', authInfo);
+                setAuthInfo(JSON.parse(authInfo));
+            }
+    };
+
+
+    const doLogout=()=>{
+        AsyncStorage.removeItem('authInfo');
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }]
+        });
+    };
     async function getListStudent() {
         try {
-            const API_URL="http://192.168.202.101:3000/students";
+            const API_URL="http://192.168.202.100:3000/students";
             const response= await fetch(API_URL);
             const data= await response.json();
             setStudents(data);
@@ -28,20 +52,30 @@ const HomeScreen = ({ navigation }) => {
         }
     }
     
+    useEffect(() => {
+        retrieveData();
+        getListStudent();
+    }, []);
 
+    const renderStudents = () => {
+        return (
+            <ScrollView contentContainerStyle={styles.scrollView}>
+                <View>
+                    <Text style={styles.txtHeader}>List Student</Text>
+                </View>
+                <View style={styles.studentContainer}>
+                    {students.map((item, index) => {
+                        return <Student student={item} key={index}></Student>;
+                    })}
+                </View>
+            </ScrollView>
+        );
+    };
 
     return( <SafeAreaView style={styles.container}>
-        <ScrollView style={{flex:1}} contentContainerStyle={styles.scrollView}>
-        <Button title='Go to Login Screen' onPress={navigateToLogin} />
-        <View>
-            <Text style={styles.txtHeader}>List Student </Text>
-        </View>
-
-        <View style={styles.studentContainer}>
-                    {students.map((item,index)=>{return <Student student={item} key={index}></Student>})}
-                </View>
-        </ScrollView>
-        </SafeAreaView>);
+        {authInfo ? <Button title='Logout' onPress={doLogout} /> : <Button title='Go to Login Screen' onPress={navigateToLogin} />}
+        {authInfo?.role === 'ADMIN' ? renderStudents() : null}
+    </SafeAreaView>);
 };
 
 export default HomeScreen;
