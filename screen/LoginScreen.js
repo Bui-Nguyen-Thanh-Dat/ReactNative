@@ -27,10 +27,12 @@ const LoginScreen = () => {
 
     async function fetchData() {
         try {
-            const response = await fetch('http://192.168.202.100:3000/users');
+            const response = await fetch("http://10.24.62.56:3000/users");
             const data = await response.json();
             users=data;
             return data;
+
+            
         } catch (error) {
             log.error('Fetch data failed ' + error);
             return null;
@@ -105,7 +107,7 @@ const LoginScreen = () => {
         <SafeAreaView>
         <View  style={styles.root}>
             <Image source={require('../assets/logo.png')} style={styles.logo}/>
-            <CustomInput placeholder='Username' value={username} setValue={setUsername} secureTextEntry={false} />
+            <CustomInput placeholder='Username' value={username} setValue={setUsername} secureTextEntry={false}  />
             <Text  style={styles.txtErr}>{usernameError}</Text>
 
             <CustomInput placeholder='Password' value={password} setValue={setPassword} secureTextEntry={true} />
