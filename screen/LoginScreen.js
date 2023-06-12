@@ -27,7 +27,7 @@ const LoginScreen = () => {
 
     async function fetchData() {
         try {
-            const response = await fetch("http://10.24.62.56:3000/users");
+            const response = await fetch("http://192.168.202.105:3000/users");
             const data = await response.json();
             users=data;
             return data;
@@ -125,11 +125,11 @@ export default LoginScreen;
 const styles = StyleSheet.create({
     root: {
         alignItems: 'center',
-        padding: 20
+        padding: 10
     },
     logo: {
         width: '50%',
-        height: '50%',
+        height: '35%',
         resizeMode: 'contain'
     },
     txtErr:{

@@ -1,8 +1,13 @@
-import { StyleSheet, View, Text, Image } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
+
+import { StyleSheet, View, Text, Image, Button } from 'react-native';
+
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import React from 'react';
 
-const Student =({student})=>{
+
+const Student =({student,onDelete})=>{
     return(
         <View style={styles.item}>
             <View style={styles.itemImageContainer}>
@@ -19,6 +24,10 @@ const Student =({student})=>{
                     <Text>{student.email}</Text>
                     <Text>{student.dateOfBirth}</Text>
                 </View>
+                <TouchableOpacity style={styles.deleteButton} onFocus={()=>onDelete(student)}>
+                <Button title='Xoa' onPress={()=>onDelete(student)}/>
+            </TouchableOpacity>
+            
         </View>
             
       
@@ -46,5 +55,10 @@ const styles = StyleSheet.create({
     },
     right: {
         paddingLeft: 15
+    },
+    deleteButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 });

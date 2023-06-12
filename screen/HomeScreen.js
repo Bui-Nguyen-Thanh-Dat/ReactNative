@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import moment from 'moment/moment';
 
+import { CheckBox } from 'react-native-elements';
+
 import CustomButton from '../component/CustomButton';
 import CustomInput from '../component/CustomInput';
 import Student from '../component/Student';
@@ -19,7 +21,7 @@ const HomeScreen = () => {
 
     const[students, setStudents]= useState([]);
     const[authInfo, setAuthInfo]= useState();
-   
+    const [selectedIndex, setIndex] = useState(0);
 
     // Hàm điều hướng
     const navigateToLogin = () => {
@@ -47,7 +49,7 @@ const HomeScreen = () => {
     };
     async function getListStudent() {
         try {
-            const API_URL="http://10.24.62.56:3000/students";
+            const API_URL="http://192.168.202.105:3000/students";
             const response= await fetch(API_URL);
             const data= await response.json();
             setStudents(data);
@@ -66,9 +68,8 @@ const HomeScreen = () => {
     const [createDate1,setCreateDate]=useState('');
     const [updateDate1,setUpdateDate]=useState('');
    
+    
 
-    
-    
     
     const userData={
         userName:userName1,
@@ -76,16 +77,16 @@ const HomeScreen = () => {
         firstName:firstName1,
         lastName:lastName1,
         email:email1,
-        gender:gender1,
+        gender:selectedIndex===0?'Male':'Female',
         role:'STAFF',
         createDate:createDate1,
         updateDate:updateDate1
     }
-    //thiếu validate cho cập nhật Staff
+
    
    const SaveData =() => {
 
-    let API_URL='http://10.24.62.56:3000/users/'+authInfo.id;
+    let API_URL='http://192.168.202.105:3000/users/'+authInfo.id;
 
     fetch(API_URL,{
     method:'PUT',
@@ -107,7 +108,30 @@ const HomeScreen = () => {
     });
 
    };
+   const PostData =() => {
 
+    let API_URL='http://192.168.202.105:3000/users';
+
+    fetch(API_URL,{
+    method:'POST',
+    headers:{
+        Accept:'application/json',
+        'Content-Type':'application/json',
+    },
+    body:JSON.stringify(userData)
+    })
+    .then((response)=>{
+    response=> response.json();    
+    console.log(response.status);
+    if (response.status==201) {
+        alert("Them thanh cong");
+    }
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
+
+   };
    const validateFormStaff=()=>{
     if (userName1 === '') {
         Alert.alert('Notification', 'khong de trong username');
@@ -130,10 +154,7 @@ const HomeScreen = () => {
         Alert.alert('Notification', 'khong de trong email');
         return false;
     }
-    if (gender1 ==='') {
-        Alert.alert('Notification', 'khong de trong gender');
-        return false;
-    }
+
     if (createDate1 ==='') {
         Alert.alert('Notification', 'khong de trong createDate');
         return false;
@@ -145,7 +166,18 @@ const HomeScreen = () => {
     SaveData();
     return true;
 };
-
+const deleteStudent = async (item) => {
+    try {
+        const studentId = item.id;
+        const API_URL = 'http://192.168.203.101:3000/students/' + studentId;
+        const response = await fetch(API_URL, { method: 'DELETE' });
+        if (response && response.status === 200) {
+            getListStudent();
+        }
+    } catch (error) {
+        log.error('Delete data failed ' + error);
+    }
+};
     
     useEffect(() => {
         retrieveData();
@@ -161,29 +193,31 @@ const HomeScreen = () => {
                 </View>
                 <View style={styles.studentContainer}>
                     {students.map((item, index) => {
-                        return <Student student={item} key={index}></Student>;
+                        return <Student student={item} key={index} onDelete={deleteStudent}></Student>;
                     })}
                 </View>
             </ScrollView>
         );
     };
-
-
+   
     const formStaff=()=>{
         return(
-            
             <View style={[styles.container,styles.staffView]}>
-                <Text style={styles.txtHeader}>Change information staff</Text>
+                <Text style={styles.txtHeader}>Information staff</Text>
                 <CustomInput placeholder={"Username"} value={userName1} setValue={setUsername}  secureTextEntry={false} ></CustomInput>
                 <CustomInput placeholder={"NewPassword"} value={password1} setValue={setPassword} secureTextEntry={true}></CustomInput>
                 <CustomInput placeholder={"firstName"} value={firstName1} setValue={setFirstName} secureTextEntry={false}></CustomInput>
                 <CustomInput placeholder={"lastName"} value={lastName1} setValue={setLastName} secureTextEntry={false}></CustomInput>
                 <CustomInput placeholder={"Email"} value={email1} setValue={setEmail} secureTextEntry={false}></CustomInput>
-                <CustomInput placeholder={"Gender"} value={gender1} setValue={setGender} secureTextEntry={false}></CustomInput>
+                <View style={{ flexDirection: 'row' }}>
+                    <CheckBox title='Male' checked={selectedIndex === 0} onPress={() => setIndex(0)} checkedIcon='dot-circle-o' uncheckedIcon='circle-o' />
+                    <CheckBox title='Female' checked={selectedIndex === 1} onPress={() => {setIndex(1)}} checkedIcon='dot-circle-o' uncheckedIcon='circle-o' />
+                </View>
                 <CustomInput placeholder={"CreateDate"} value={createDate1} setValue={setCreateDate} secureTextEntry={false}  ></CustomInput>
                 
                 <CustomInput placeholder={"UpdateDate"} value={updateDate1} setValue={setUpdateDate} secureTextEntry={false} ></CustomInput>
                 <CustomButton btnLabel={"Update"} onPress={validateFormStaff}></CustomButton>
+                <CustomButton btnLabel={"Create"} onPress={PostData}></CustomButton>
 
              </View>
             
@@ -191,7 +225,6 @@ const HomeScreen = () => {
     };
 
     return( <SafeAreaView style={styles.container}>
-        {authInfo ? <Button title='Logout' onPress={doLogout} /> : <Button title='Go to Login Screen' onPress={navigateToLogin} />}
         {authInfo?.role === 'ADMIN' ? renderStudents() : null}
         {authInfo?.role === 'STAFF' ? formStaff() : null}
     </SafeAreaView>);
